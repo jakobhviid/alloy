@@ -1,0 +1,5 @@
+# This file is YOURS to edit. The managed config lives in ~/.zshrc.image
+# (deployed by temper — apps/zsh.toml — from assets/zshrc.template); the marker
+# block below loads it, and belongs to temper. Add or override anywhere around
+# it. temper seeds this file once and then leaves it alone, so tools that
+# auto-modify it (nvm, pyenv, bun, etc.) are never clobbered.

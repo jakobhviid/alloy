@@ -1,0 +1,55 @@
+# zsh, in two files: a managed one this spec owns outright, and your own.
+#
+#   ~/.zshrc.image  — owned here, overwritten on every converge. Everything this
+#                     spec has an opinion about lives in it.
+#   ~/.zshrc        — yours. Created once if absent and never touched again, so
+#                     anything you add survives.
+#
+# The two are joined by a single `source` line, which this spec keeps in a marked
+# region of ~/.zshrc. That split is the whole design: you get updates to the
+# managed half without this spec ever overwriting a line you wrote.
+#
+# `{{ brew_prefix }}` resolves `brew --prefix` on the machine, so nothing has to
+# hardcode /home/linuxbrew/.linuxbrew.
+#
+# NOTE: zsh itself comes from Homebrew (see brewfiles/desktop), and it must not
+# become your login shell via `chsh`. Bazzite's own documentation recommends
+# changing shell per terminal emulator instead, and `chsh` to a path under the
+# brew prefix is a documented way to end up unable to log in
+# (ublue-os/bazzite#4159) — the prefix is extracted on first boot, so the path
+# can legitimately not exist yet.
+os = "linux"
+
+[[step]]
+copy     = "assets/zshrc.template"
+to       = "~/.zshrc.image"
+template = true
+
+[[step]]
+copy = "assets/zshrc-bootstrap"
+to   = "~/.zshrc"
+seed = true
+
+# The seed above can only ever write ~/.zshrc once — into a machine that does not
+# have one. A machine whose ~/.zshrc predates this spec would load none of the
+# managed half while every step here still reported in sync, because a seed is
+# excluded from drift by design. So the source line is a `block`: temper owns the
+# marked region and nothing else, and a converge puts it back wherever it is
+# missing.
+[[step]]
+block  = "assets/zshrc-image-source"
+in     = "~/.zshrc"
+marker = "zshrc-image"
+
+# ~/.zshrc.image carries `brew shellenv`, so it has to load before anything else
+# in ~/.zshrc: until it has, no brew-installed binary is on PATH. Tools wire
+# themselves into the rc by appending, and `block` appends a missing region too,
+# so whichever reached the file first ends up first — and a managed half that
+# lands below a PATH-dependent guard leaves it silently doing nothing. This
+# hoists the region to the top and touches no other line.
+#
+# Last in the bundle, because it is the ordering every step above can disturb.
+[[step]]
+exec  = "assets/scripts/zshrc-image-first.sh"
+check = "assets/scripts/zshrc-image-first-check.sh"
+run   = "always"

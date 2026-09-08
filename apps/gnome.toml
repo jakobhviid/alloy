@@ -1,0 +1,55 @@
+# GNOME settings this spec has an opinion about — and deliberately only those.
+#
+# EXTENSIONS ARE NOT DECLARED HERE. Which extensions you run is the most personal
+# thing about a GNOME desktop, and imposing a set is how a shared spec becomes
+# somebody else's desktop rather than a working one. To take some, add a
+# `gnome_extensions` list — either to this bundle (`gnome_extensions =
+# ["uuid@author"]`, before the first [[step]]) or to your machine block in
+# temper.toml, which is the better place for a per-machine choice. A bare uuid
+# means installed and enabled; `{ uuid = "…", enabled = false }` means installed
+# and switched off.
+#
+# Bazzite already ships a dozen or so in /usr/share/gnome-shell/extensions
+# (blur-my-shell, caffeine, appindicator, gsconnect and others). Those need no
+# declaration — they are there; dconf decides which run.
+os   = "linux"
+role = "desktop"
+
+# xwayland-native-scaling makes XWayland apps render at native resolution under
+# fractional scaling instead of being bitmap-scaled by mutter, which fixes blurry
+# text in anything not yet native Wayland. kms-modifiers is a compositing
+# improvement Bazzite's own hardware guidance recommends.
+[[step]]
+setkey = { backend = "dconf", key = "/org/gnome/mutter/experimental-features", value = ["kms-modifiers", "xwayland-native-scaling"] }
+
+# ── Ghostty window blur (Blur my Shell → Applications) ───────────────────────
+# Ghostty's own `background-blur` is a silent no-op under Mutter, which exposes
+# no compositor blur API. The blur behind the terminal is GNOME compositing it,
+# via the blur-my-shell extension the Bazzite base ships — so the setting lives
+# here rather than in Ghostty's config.
+#
+# These are fixed policy, re-applied on every converge, so retune them HERE and
+# not in the extension's preferences UI: a change made there is reverted on the
+# next converge. Every key that is tuned is declared, even where it matches the
+# schema default, so that each one has exactly one owner.
+[[step]]  # blur the whitelisted apps at all (extension default: off)
+setkey = { backend = "dconf", key = "/org/gnome/shell/extensions/blur-my-shell/applications/blur", value = true }
+
+[[step]]  # scope it to Ghostty — an empty whitelist with enable-all=false blurs nothing
+setkey = { backend = "dconf", key = "/org/gnome/shell/extensions/blur-my-shell/applications/whitelist", value = ["com.mitchellh.ghostty"] }
+
+[[step]]  # default `true` forces the FOCUSED window opaque — blur would vanish exactly while you use it
+setkey = { backend = "dconf", key = "/org/gnome/shell/extensions/blur-my-shell/applications/dynamic-opacity", value = false }
+
+[[step]]  # blur radius (default 30), tuned against ghostty's background-opacity = 0.84
+setkey = { backend = "dconf", key = "/org/gnome/shell/extensions/blur-my-shell/applications/sigma", value = 27 }
+
+# opacity is the extension's own tint layer over the blur, stacking on top of
+# Ghostty's background-opacity. The default 215 puts a second veil over an
+# already translucent terminal and muddies it; 255 makes the tint fully opaque so
+# the blur reads clean and Ghostty's own 0.84 is the only transparency in play.
+[[step]]
+setkey = { backend = "dconf", key = "/org/gnome/shell/extensions/blur-my-shell/applications/opacity", value = 255 }
+
+[[step]]  # brightness dims the glass itself, under the opacity tint above
+setkey = { backend = "dconf", key = "/org/gnome/shell/extensions/blur-my-shell/applications/brightness", value = 0.47 }

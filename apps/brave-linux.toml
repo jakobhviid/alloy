@@ -1,0 +1,30 @@
+# Brave Origin's managed policy — root-owned, so Brave applies it as enterprise
+# policy rather than as a preference the user can drift away from.
+#
+# OPT-IN, and not composed by default. Read assets/brave-origin-policy.json
+# before you take it, because it makes decisions for you:
+#
+#   - Brave's own password manager and autofill are switched OFF, to keep them
+#     out of 1Password's way. If you do not use 1Password, you probably do not
+#     want this.
+#   - The 1Password extension is FORCE-INSTALLED and cannot be removed from
+#     within Brave.
+#   - DNS-over-HTTPS is pinned to dns0.eu and quad9, search defaults to Qwant,
+#     and telemetry is off.
+#
+# These are one person's good defaults, not a hardening baseline — take them,
+# edit the file, or leave the bundle out of your `apps` list.
+#
+# `sysfile` rather than a plain copy because Chromium reads managed policy only
+# from a root-owned path under /etc/<browser>/policies/managed/. Nothing else
+# writes that file, so temper owns it whole and drift compares content, mode and
+# owner — which is the point of it being here at all: a policy that has silently
+# stopped applying looks exactly like one that was never installed.
+os = "linux"
+
+[[step]]
+sysfile = "assets/brave-origin-policy.json"
+to      = "/etc/brave/policies/managed/brave-policy.json"
+mode    = "0644"
+owner   = "root"
+group   = "root"

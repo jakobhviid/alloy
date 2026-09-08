@@ -1,0 +1,38 @@
+# Ghostty's config, plus the Ctrl+Alt+T binding that opens a new window.
+#
+# The binding is a GNOME custom keybinding rather than a line in Ghostty's own
+# config, for two reasons. Ghostty's `global:` keybinds need the GlobalShortcuts
+# portal, which Mutter does not implement, so that route is simply dead here. And
+# a GNOME binding fires whether or not Ghostty is running, which is the whole
+# point of a "new terminal" shortcut.
+#
+# GNOME leaves Ctrl+Alt+T unbound upstream (it is Ubuntu and Mint that add it),
+# so there is nothing to collide with.
+os   = "linux"
+role = "desktop"
+
+[[step]]
+copy = "assets/ghostty.linux.config"
+to   = "~/.config/ghostty/config"
+
+# Three keys inside one custom-keybinding slot: register the slot in the shared
+# list, then set its name, command and binding.
+[[step]]
+setkey = { backend = "dconf", key = "/org/gnome/settings-daemon/plugins/media-keys/custom-keybindings", value = "/org/gnome/settings-daemon/plugins/media-keys/custom-keybindings/ghostty/", append = true }
+when   = { binary = "ghostty" }
+
+[[step]]
+setkey = { backend = "dconf", key = "/org/gnome/settings-daemon/plugins/media-keys/custom-keybindings/ghostty/name", value = "New Ghostty Window" }
+when   = { binary = "ghostty" }
+
+# `command` resolves the binary on the machine (template = true) because GNOME's
+# PATH excludes the brew prefix. `+new-window` rather than a bare `ghostty` goes
+# through D-Bus activation, which starts Ghostty if it is not running and is much
+# faster when it is.
+[[step]]
+setkey = { backend = "dconf", key = "/org/gnome/settings-daemon/plugins/media-keys/custom-keybindings/ghostty/command", value = "{{ which \"ghostty\" }} +new-window", template = true }
+when   = { binary = "ghostty" }
+
+[[step]]
+setkey = { backend = "dconf", key = "/org/gnome/settings-daemon/plugins/media-keys/custom-keybindings/ghostty/binding", value = "<Control><Alt>t" }
+when   = { binary = "ghostty" }

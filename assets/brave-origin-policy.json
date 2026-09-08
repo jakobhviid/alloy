@@ -1,0 +1,39 @@
+{
+  "PasswordManagerEnabled": false,
+  "AutofillAddressEnabled": false,
+  "AutofillCreditCardEnabled": false,
+  "PaymentMethodQueryEnabled": false,
+  "ImportSavedPasswords": false,
+
+  "MetricsReportingEnabled": false,
+  "UrlKeyedAnonymizedDataCollectionEnabled": false,
+  "UserFeedbackAllowed": false,
+
+  "SafeBrowsingEnabled": true,
+  "SafeBrowsingExtendedReportingEnabled": false,
+
+  "HttpsUpgradesEnabled": true,
+
+  "BraveDeAmpEnabled": true,
+  "BraveDebouncingEnabled": true,
+  "BraveReduceLanguageEnabled": true,
+
+  "SpellCheckServiceEnabled": false,
+  "AlternateErrorPagesEnabled": false,
+
+  "ShoppingListEnabled": false,
+
+  "DnsOverHttpsMode": "secure",
+  "DnsOverHttpsTemplates": "https://dns0.eu/dns-query https://dns.quad9.net/dns-query",
+
+  "DefaultSearchProviderEnabled": true,
+  "DefaultSearchProviderName": "Qwant",
+  "DefaultSearchProviderSearchURL": "https://www.qwant.com/?q={searchTerms}",
+  "DefaultSearchProviderSuggestURL": "https://api.qwant.com/api/suggest/?q={searchTerms}",
+  "DefaultSearchProviderKeyword": "qwant",
+  "DefaultSearchProviderEncodings": ["UTF-8"],
+
+  "ExtensionInstallForcelist": [
+    "aeblfdkhhhdcdjpifhhbdiojplfjncoa;https://clients2.google.com/service/update2/crx"
+  ]
+}

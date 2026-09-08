@@ -36,4 +36,14 @@ role = "desktop"        # "desktop" means this box has a graphical session.
 # current here, and is composed only by machines whose owner actually wants it —
 # it is not part of anyone's default. Drop the name and no Vivaldi repo, key or
 # package ever touches the machine.
-apps = ["rpm-layered", "vivaldi"]
+apps = ["rpm-layered", "shell", "zsh", "ghostty", "gnome"]
+
+# Bundles this spec maintains but does NOT compose by default, because each one
+# makes a decision you should make yourself. Add the name to take it:
+#
+#   "vivaldi"      the Vivaldi browser, from Vivaldi's own repo.
+#   "brave-linux"  Brave's managed policy — force-installs the 1Password
+#                  extension, disables Brave's own password manager, pins DNS
+#                  and search. Read apps/brave-linux.toml before taking it.
+
+brewfile = "brewfiles/desktop"

@@ -1,0 +1,16 @@
+# Prompt and multiplexer config, deployed as whole files this spec owns.
+os = "linux"
+
+# starship.toml is a template for exactly one line: the directory substitution
+# that shortens your home directory to `~`. On an atomic system /home is a
+# symlink to /var/home, and starship prints the RESOLVED path — so the
+# substitution has to name /var/home/<user>, which is why it keys off the
+# username rather than $HOME ($HOME stays /home/<user> and would never match).
+[[step]]
+copy     = "assets/starship.toml"
+to       = "~/.config/starship.toml"
+template = true
+
+[[step]]
+copy = "assets/tmux.conf"
+to   = "~/.tmux.conf"

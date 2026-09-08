@@ -48,24 +48,37 @@ Two edits, both in `temper.toml`:
    machine names it. Removing a name is how you decline software; adding one is
    how you take it.
 
-`Vivaldi` is the worked example of that second point. It is packaged and kept
-current in `apps/vivaldi.toml`, and it is **nobody's default** — it is in this
-spec because one machine's owner wants it. Leave `"vivaldi"` out of `apps` and
-no Vivaldi repo, signing key or package ever touches your machine.
+Two bundles are shipped but **not composed by default**, because each makes a
+decision that should be yours. `vivaldi` installs the Vivaldi browser from
+Vivaldi's own repo. `brave-linux` applies Brave's managed policy, which
+force-installs the 1Password extension, disables Brave's own password manager,
+and pins DNS and search — read `apps/brave-linux.toml` before taking it. Leave a
+name out of `apps` and nothing it declares ever touches your machine.
 
 ## What it sets up
 
-| Bundle | What it does |
-|---|---|
-| `rpm-layered` | The third-party repos and their signing keys, plus the packages layered from them: Brave Origin, Ghostty, and a handful of Fedora-main packages the base leaves out. |
-| `vivaldi` | Vivaldi, from Vivaldi's own repo. Opt-in — see above. |
+| Bundle | What it does | Default |
+|---|---|---|
+| `rpm-layered` | The third-party repos and signing keys, and the three packages layered from them: Brave Origin, Ghostty, gnome-tweaks. | yes |
+| `shell` | The starship prompt and a tmux config. | yes |
+| `zsh` | zsh in two files — one this spec owns, one that stays yours. | yes |
+| `ghostty` | Ghostty's config, and Ctrl+Alt+T for a new window. | yes |
+| `gnome` | Fractional-scaling and compositing fixes, and terminal blur. No extensions — those are left to you. | yes |
+| `vivaldi` | The Vivaldi browser. | opt-in |
+| `brave-linux` | Brave's managed policy. Opinionated; read it first. | opt-in |
 
-Each bundle explains itself: the comments say *why* a package comes from where it
+It is deliberately a short list. This spec covers what is true of *any* Bazzite
+desktop and stops there — it is not a copy of anyone's personal setup, and the
+bundles carry no dotfiles, keys, hostnames or identities.
+
+Each bundle explains itself: the comments say *why* something comes from where it
 does, which is the part that is hard to reconstruct later. The channel policy
 they follow is **Homebrew first, layer only when brew cannot work, Flatpak where
-the app is sandboxable** — and browsers are the clearest case of "cannot work",
-because 1Password's browser integration needs a native-messaging manifest and an
-`/etc` allowlist entry that a sandboxed browser cannot reach.
+the app is sandboxable**. Browsers are the clearest case of "cannot work":
+1Password's browser integration needs a native-messaging manifest and an `/etc`
+allowlist entry that a sandboxed browser cannot reach — which is why Brave is
+layered and not a flatpak. If you do not use 1Password, a flatpak browser is a
+perfectly good choice and one less repo in your update path.
 
 ## Updates take care of themselves
 

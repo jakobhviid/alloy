@@ -1,0 +1,61 @@
+# Homebrew packages for this machine, in Brewfile grammar.
+#
+# Homebrew is a first-class part of Bazzite, not something bolted on: the base
+# builds it in and enables brew-update.timer (every 6h) and brew-upgrade.timer
+# (every 8h) by system preset, both Persistent=true so a machine that was off
+# catches up at the next boot. So this file declares WHAT is installed and the
+# platform keeps it CURRENT — do not add a unit or timer to upgrade brew, there
+# already is one.
+#
+# Everything here is absent from the stock base (checked 2026-09-08). What the
+# base already provides is deliberately NOT listed, so nothing is installed twice
+# under two prefixes: fzf, jq, tmux, btop and just all ship with Bazzite, and the
+# shell config below uses them from there.
+
+# ── The shell ────────────────────────────────────────────────────────────────
+# zsh from brew is upstream's own answer, not just this spec's preference:
+# Bazzite ships fish, and its Best Shell Practices page says other shells are to
+# be installed with Homebrew.
+#
+# Do NOT make it your login shell with `chsh`. Set it as a custom command in your
+# terminal emulator instead — which is what Bazzite recommends, and `chsh` to a
+# path under the brew prefix is a documented way to end up unable to log in
+# (ublue-os/bazzite#4159, closed as not planned). The prefix is extracted on
+# first boot, so that path can legitimately not exist yet.
+brew "zsh"
+brew "zsh-autosuggestions"
+brew "zsh-completions"
+brew "zsh-syntax-highlighting"
+brew "starship"
+
+# ── What the managed ~/.zshrc.image actually calls ───────────────────────────
+# Not optional extras: the config aliases ls to eza and cat to bat, initialises
+# zoxide as `cd`, and binds Ctrl-B to a session picker built from sesh, fzf and
+# fd. Remove one and that part of the shell breaks rather than degrades.
+brew "bat"
+brew "eza"
+brew "fd"
+brew "lazygit"
+brew "sesh"
+brew "zoxide"
+
+# ── Fonts ────────────────────────────────────────────────────────────────────
+# Font casks on Linux unpack into ~/.local/share/fonts, which is the only
+# writable font location on an atomic system and a standard XDG path fontconfig
+# reads with no configuration — so no layering, no rebuild and no root. It is
+# also where Brave looks for fonts, which /usr is not.
+#
+# Per-user, not per-machine: the brew prefix is shared but the files land in each
+# user's $HOME, so a second account on the same machine needs its own converge.
+#
+# The Symbols-Only Nerd Font is what makes starship's prompt symbols and the
+# terminal's icons render as glyphs rather than empty boxes — the base's
+# nerd-fonts package covers the patched families, not the symbol fallback.
+cask "font-symbols-only-nerd-font"
+cask "font-cascadia-code"
+cask "font-cascadia-code-nf"
+cask "font-inter"
+cask "font-jetbrains-mono"
+# Absent from the stock base, and read by Brave and by anything falling back to a
+# default serif or sans.
+cask "font-dejavu"
