@@ -1,0 +1,13 @@
+# Disabled on purpose. brave-origin is served by brave-browser.repo, which uses
+# Brave's real bucket and an on-disk key. brave-origin's own postinstall writes
+# this path pointing at a dl.google.com URL that does not exist; left enabled it
+# fails the metadata refresh that `rpm-ostree upgrade` needs and pins the machine
+# to a stale deployment. Owned by apps/rpm-layered.toml.
+[brave-origin]
+name=brave-origin (disabled — see brave-browser.repo)
+baseurl=https://brave-browser-rpm-release.s3.brave.com/$basearch
+enabled=0
+enabled_metadata=0
+skip_if_unavailable=True
+gpgcheck=1
+gpgkey=file:///etc/pki/rpm-gpg/RPM-GPG-KEY-brave-browser

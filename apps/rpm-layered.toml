@@ -1,0 +1,119 @@
+# Where a Bazzite desktop's repo-provided software comes from: the third-party
+# repos, their keys, and the packages layered out of them.
+#
+# COMPOSE THIS ONLY ON A STOCK BAZZITE BASE. rpm-ostree cannot layer a package
+# the base image already provides, so on a base that bakes any of these in, the
+# whole list reports as failed.
+#
+# Why the repo files are declared here rather than left to the machine: `/etc` is
+# merge-forward on an ostree system. Whatever is in /etc/yum.repos.d survives a
+# rebase, which makes the absence invisible — the machine keeps working and
+# nothing says the files are unowned. A from-scratch reinstall is where that
+# bites: no repos, so nothing below has a provider. Nor can a custom image be
+# trusted to own them instead: because /etc is merged rather than replaced, an
+# older local copy silently wins over the one the image ships.
+#
+# Keys are files on disk, referenced as gpgkey=file:///…, rather than URLs. That
+# pins trust to the key this spec vouches for instead of whatever the vendor's
+# serves at install time, and it is required rather than merely preferable
+# wherever a repo signs its metadata (repo_gpgcheck=1): the key has to be in
+# place before the first metadata refresh, and a remote key is fetched too late
+# to verify the repomd naming it.
+os   = "linux"
+role = "desktop"
+
+rpm_ostree = [
+    # Brave Origin — must be a native package, not a flatpak: 1Password's browser
+    # integration needs a native-messaging manifest plus an /etc allowlist entry,
+    # and a sandboxed browser can reach neither. Layered vs image-baked is
+    # invisible to 1Password; flatpak is not.
+    "brave-origin",
+    # Ghostty — not in Fedora main as of F44, so it comes from the COPR that
+    # Ghostty's own install docs name as canonical. An AppImage exists and a brew
+    # cask would work, but terminfo decides it: a native install puts
+    # xterm-ghostty in /usr/share/terminfo, while an AppImage keeps it inside a
+    # squashfs mounted at a per-launch temp path, which breaks keys and colours
+    # over ssh in a way that is annoying to diagnose.
+    "ghostty",
+    # copyous (the clipboard manager) loads these into the gnome-shell process,
+    # so they must come from the system: a brew build would link against brew's
+    # own glib and put a second GObject type system into a process that already
+    # has one. Confirmed absent from both stock bases 2026-09-08 — gsound, which
+    # the same reasoning covers, IS in the base and so is not layered.
+    "libgda",
+    "libgda-sqlite",
+    # Plain Fedora-main packages, cheap to layer, none in the stock base
+    # (confirmed 2026-09-08). edk2-ovmf belongs to this group by function but is
+    # already installed by Bazzite, so layering it would fail.
+    "gnome-tweaks",
+    "podman-compose",
+    "libheif-tools",
+    "gnome-boxes",
+    "libvirt-daemon-kvm",
+    "virglrenderer",
+    "swtpm",
+]
+
+# Bundle-level keys stop at the first table header below.
+
+# ─── Brave ────────────────────────────────────────────────────────────────────
+# brave-origin is served from the same S3 bucket and signed with the same key as
+# the brave-browser package it replaced, so the repo keeps Brave's own naming.
+[[step]]
+sysfile = "assets/rpm-repos/RPM-GPG-KEY-brave-browser"
+to      = "/etc/pki/rpm-gpg/RPM-GPG-KEY-brave-browser"
+mode    = "0644"
+owner   = "root"
+group   = "root"
+
+[[step]]
+sysfile = "assets/rpm-repos/brave-browser.repo"
+to      = "/etc/yum.repos.d/brave-browser.repo"
+mode    = "0644"
+owner   = "root"
+group   = "root"
+
+# brave-origin's postinstall writes a SECOND repo file, /etc/yum.repos.d/
+# brave-origin.repo, pointing at https://dl.google.com/linux/brave-origin/rpm/
+# stable — Chrome packaging boilerplate Brave never adapted. That URL is 404
+# (checked 2026-09-08) and the file it writes carries enabled=1, so it breaks
+# the package re-resolve that every `rpm-ostree upgrade` performs and leaves the
+# machine on a stale deployment.
+#
+# So this spec owns that path too, as a disabled stub: the repo above is the real
+# provider, so the vendor's entry has no job to do. It only shows up once Brave
+# is layered — a scriptlet in an image build writes into a container's /etc, which
+# is thrown away.
+#
+# This is deliberately the one place in this spec where temper owns a file a
+# package also writes. Brave rewrites it during each brave-origin upgrade and
+# temper restores it on the next converge — so it shows up as honest drift with
+# a real fix, rather than as a repo that quietly blocks updates. Delete-and-
+# reassert would oscillate identically and leave nothing behind in the window
+# between the two.
+[[step]]
+sysfile = "assets/rpm-repos/brave-origin-disabled.repo"
+to      = "/etc/yum.repos.d/brave-origin.repo"
+mode    = "0644"
+owner   = "root"
+group   = "root"
+
+# ─── Ghostty ──────────────────────────────────────────────────────────────────
+# COPR files carry their key as a URL with repo_gpgcheck=0, which is COPR's own
+# shape and has no metadata-signing race to lose. Deployed as the file `dnf5 copr
+# enable` would write, so enabling it by hand and declaring it here agree.
+#
+# A machine that enabled this COPR previously may carry a second file for it, an
+# older `_copr_scottames-ghostty.repo`, declaring the same repo id with the same
+# baseurl. This spec owns the colon form; the assert below catches the duplicate,
+# which dnf resolves arbitrarily rather than reporting.
+[[step]]
+sysfile = "assets/rpm-repos/ghostty-copr.repo"
+to      = "/etc/yum.repos.d/_copr:copr.fedorainfracloud.org:scottames:ghostty.repo"
+mode    = "0644"
+owner   = "root"
+group   = "root"
+
+[[assert]]
+absent  = "/etc/yum.repos.d/_copr_scottames-ghostty.repo"
+message = "a second file declares the ghostty COPR with the same repo id — remove it: sudo rm '/etc/yum.repos.d/_copr_scottames-ghostty.repo'"

@@ -1,0 +1,29 @@
+# Vivaldi, layered from Vivaldi's own RPM repo.
+#
+# Composed only by machines that want it — see the note on `apps` in temper.toml.
+# It is packaged here so that whoever uses it gets a maintained definition rather
+# than installing Vivaldi by hand, and a machine that leaves the bundle out of
+# its `apps` list never sees the repo or the package.
+#
+# Vivaldi has to be a native package rather than a flatpak if 1Password's browser
+# integration matters to you: that integration needs a native-messaging manifest
+# and an /etc allowlist entry, and a sandboxed browser can reach neither.
+os   = "linux"
+role = "desktop"
+
+rpm_ostree = ["vivaldi-stable"]
+
+# Bundle-level keys stop at the first table header below: an `rpm_ostree` line
+# after a `[[step]]` is read as a field OF that step and fails to parse.
+
+# The repo is bootstrapped by a script rather than declared as a `sysfile`, which
+# is unusual in this spec and deliberate here: Vivaldi's own %post runs
+# `cat > /etc/yum.repos.d/vivaldi.repo` on every install and upgrade, so the
+# package owns that file's steady state. A declarative write would revert
+# Vivaldi's version on every converge and be reverted right back on every
+# Vivaldi update. See assets/scripts/vivaldi-repo-bootstrap.sh, and note that the
+# check is a presence test rather than a content test on purpose.
+[[step]]
+exec  = "assets/scripts/vivaldi-repo-bootstrap.sh"
+check = "assets/scripts/vivaldi-repo-check.sh"
+sudo  = true
