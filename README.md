@@ -41,7 +41,7 @@ and it stops being an example and becomes yours.
 
 ## The temper this was written for
 
-Written and verified against **temper 7.5.1**. The newest thing it uses is
+Written and verified against **temper 7.5.5**. The newest thing it uses is
 `rpm_repos`, which arrived in **7.4.0** — below that the folder does not load at
 all, because temper treats an unknown manifest field as a parse error rather than
 ignoring it. So an old temper fails with a parse error that says nothing about

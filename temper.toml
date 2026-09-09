@@ -9,7 +9,7 @@
 # `hostname -s` and put that here. `temper init` will also write a block for you,
 # seeded from what is already installed.
 #
-# WRITTEN FOR TEMPER 7.5.1; needs 7.4.0 or newer, because `rpm_repos` in
+# WRITTEN FOR TEMPER 7.5.5; needs 7.4.0 or newer, because `rpm_repos` in
 # apps/rpm-layered.toml and apps/vivaldi.toml arrived there and an unknown
 # manifest field is a parse error, not a warning. If a newer temper rejects
 # something in this folder, temper is right and the folder is stale: read
