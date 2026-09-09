@@ -173,11 +173,16 @@ again.
 
 Then **reboot** — layering lands in a new deployment.
 
-Then **`temper install` a second time.** Configuration steps gated on a binary
-that only exists after the reboot were skipped on the first pass — terminal
-keybindings, the session unlock units — and this is the run that applies them.
-That is not a failure of the one-pass rule above, which is about package
-resolution.
+Then **`temper install` a second time.** A few configuration steps are gated on a
+binary that only exists once the layered packages have landed — the terminal's
+new-window keybinding is the one you will notice — so they are skipped on the
+first pass and this run applies them. That is not a failure of the one-pass rule
+above, which is about package resolution.
+
+The session unlock units are **not** among them: they deploy unconditionally on
+the first converge, because a unit clearing a lock for an app you do not have is
+a no-op and costs a millisecond at login, while a missing one costs a browser
+that silently refuses to start.
 
 Finally, absorb what the live desktop has drifted:
 
