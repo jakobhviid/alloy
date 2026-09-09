@@ -12,6 +12,14 @@
 # broken (rollback is a reboot), but it is a real cost paid per machine, so
 # nothing is layered that a cask or a flatpak could carry instead.
 #
+#
+# YOUR FIRST `temper install` WILL REPORT THESE PACKAGES AS FAILED, and a second
+# one will succeed. That is expected, and it is worth knowing before it happens.
+# temper converges packages BEFORE config steps, and the repo files below are
+# config — so on the first pass rpm-ostree is asked for packages whose repos are
+# not on disk yet. The same pass writes the repos; run `temper install` again and
+# they layer. There is no --config-only flag to sequence it differently.
+#
 # Why the repo files are declared here rather than left to the machine: `/etc` is
 # merge-forward on an ostree system. Whatever is in /etc/yum.repos.d survives a
 # rebase, which makes their absence invisible — the machine keeps working and
