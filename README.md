@@ -31,15 +31,10 @@ temper setup /path/to/alloy   # records where the spec lives
 temper drift                  # what is out of sync — reads only, changes nothing
 temper install --dry-run      # what an install would do — writes nothing
 temper install                # converge for real
-temper install                # again — see below
 ```
 
-**Run `temper install` twice the first time.** temper converges packages before
-config, and the third-party repos the layered packages come from are config — so
-on a fresh machine the first pass asks rpm-ostree for packages whose repos are
-not on disk yet and reports them as failed. That same pass writes the repos, and
-the second pass installs them. Then reboot: layered packages land in a new
-deployment.
+Then **reboot** — layered packages land in a new deployment, so the browser and
+terminal appear after it, not before.
 
 `temper --llm` prints the full manual in one go if you want to know what any of
 it means.

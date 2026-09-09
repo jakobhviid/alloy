@@ -13,17 +13,18 @@ role = "desktop"
 
 rpm_ostree = ["vivaldi-stable"]
 
-# Bundle-level keys stop at the first table header below: an `rpm_ostree` line
-# after a `[[step]]` is read as a field OF that step and fails to parse.
-
-# The repo is bootstrapped by a script rather than declared as a `sysfile`, which
-# is unusual in this spec and deliberate here: Vivaldi's own %post runs
-# `cat > /etc/yum.repos.d/vivaldi.repo` on every install and upgrade, so the
-# package owns that file's steady state. A declarative write would revert
-# Vivaldi's version on every converge and be reverted right back on every
-# Vivaldi update. See assets/scripts/vivaldi-repo-bootstrap.sh, and note that the
-# check is a presence test rather than a content test on purpose.
-[[step]]
-exec  = "assets/scripts/vivaldi-repo-bootstrap.sh"
-check = "assets/scripts/vivaldi-repo-check.sh"
-sudo  = true
+# Vivaldi's repo. Declaring a file that a package also writes is normally a
+# mistake: vivaldi-stable's %post runs `cat > /etc/yum.repos.d/vivaldi.repo`
+# unconditionally on every install and upgrade, so the package owns that file's
+# steady state and wins any disagreement once per Vivaldi release.
+#
+# It is safe here for one specific reason — the asset is Vivaldi's own content
+# verbatim, including the archive baseurl, the literal x86_64 its %post
+# hardcodes, and the remote gpgkey it imports itself. temper writes exactly what
+# the package writes, so the two have nothing to disagree about and no key asset
+# is needed. The cost is that this asset must be updated if Vivaldi ever changes
+# that file; what it buys is the repo being on disk before the package needs it,
+# which is what a machine starting from nothing requires.
+rpm_repos = [
+    { repo = "assets/rpm-repos/vivaldi.repo" },
+]

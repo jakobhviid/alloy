@@ -13,13 +13,6 @@
 # nothing is layered that a cask or a flatpak could carry instead.
 #
 #
-# YOUR FIRST `temper install` WILL REPORT THESE PACKAGES AS FAILED, and a second
-# one will succeed. That is expected, and it is worth knowing before it happens.
-# temper converges packages BEFORE config steps, and the repo files below are
-# config — so on the first pass rpm-ostree is asked for packages whose repos are
-# not on disk yet. The same pass writes the repos; run `temper install` again and
-# they layer. There is no --config-only flag to sequence it differently.
-#
 # Why the repo files are declared here rather than left to the machine: `/etc` is
 # merge-forward on an ostree system. Whatever is in /etc/yum.repos.d survives a
 # rebase, which makes their absence invisible — the machine keeps working and
@@ -49,54 +42,31 @@ rpm_ostree = [
     "gnome-tweaks",
 ]
 
-# Bundle-level keys stop at the first table header below: an `rpm_ostree` line
-# after a `[[step]]` is read as a field OF that step and fails to parse.
 
-# ─── Brave ────────────────────────────────────────────────────────────────────
-[[step]]
-sysfile = "assets/rpm-repos/RPM-GPG-KEY-brave-browser"
-to      = "/etc/pki/rpm-gpg/RPM-GPG-KEY-brave-browser"
-mode    = "0644"
-owner   = "root"
-group   = "root"
-
-[[step]]
-sysfile = "assets/rpm-repos/brave-browser.repo"
-to      = "/etc/yum.repos.d/brave-browser.repo"
-mode    = "0644"
-owner   = "root"
-group   = "root"
-
-# brave-origin's postinstall writes a SECOND repo file, /etc/yum.repos.d/
-# brave-origin.repo, pointing at https://dl.google.com/linux/brave-origin/rpm/
-# stable — Chrome packaging boilerplate Brave never adapted. That URL is 404
-# (checked 2026-09-08) and the file carries enabled=1, so left alone it fails
-# the metadata refresh that `rpm-ostree upgrade` needs and pins the machine to a
-# stale deployment.
+# The repos these come from. `rpm_repos` installs each BEFORE any package
+# converge — the key before the repo citing it — so a clean machine resolves the
+# packages above on its FIRST run. There is no `to`: the destination is
+# /etc/yum.repos.d/<basename> and /etc/pki/rpm-gpg/<basename>, which is why two
+# of these assets are named for where they land rather than for what they are.
 #
-# So this spec owns that path too, as a disabled stub: the repo above is the real
-# provider, so the vendor's entry has no job to do. It is the one place here
-# where temper owns a file a package also writes — Brave rewrites it during each
-# upgrade and temper restores it on the next converge, which shows up as honest
-# drift with a real fix rather than as a repo that quietly blocks updates.
-[[step]]
-sysfile = "assets/rpm-repos/brave-origin-disabled.repo"
-to      = "/etc/yum.repos.d/brave-origin.repo"
-mode    = "0644"
-owner   = "root"
-group   = "root"
-
-# ─── Ghostty ──────────────────────────────────────────────────────────────────
-# COPR files carry their key as a URL with repo_gpgcheck=0, which is COPR's own
-# shape and has no metadata-signing race to lose. Deployed under the filename
-# `dnf5 copr enable` would write, so enabling it by hand and declaring it here
-# agree rather than leaving two files for one repo id.
-[[step]]
-sysfile = "assets/rpm-repos/ghostty-copr.repo"
-to      = "/etc/yum.repos.d/_copr:copr.fedorainfracloud.org:scottames:ghostty.repo"
-mode    = "0644"
-owner   = "root"
-group   = "root"
+# One line per entry: TOML 1.0 does not let an inline table span lines.
+rpm_repos = [
+    # brave-origin comes from the same bucket and signing key as the
+    # brave-browser package it replaced, so the repo keeps Brave's own naming.
+    { repo = "assets/rpm-repos/brave-browser.repo", key = "assets/rpm-repos/RPM-GPG-KEY-brave-browser" },
+    # brave-origin's postinstall writes a SECOND repo file at this path, pointing
+    # at a dl.google.com URL that 404s — Chrome packaging boilerplate Brave never
+    # adapted — with enabled=1. Left alone it fails the metadata refresh every
+    # `rpm-ostree upgrade` needs and pins the machine to a stale deployment. This
+    # spec owns the path with bytes that say enabled=0, which is how a disabled
+    # repo is expressed; the repo above is the real provider.
+    { repo = "assets/rpm-repos/brave-origin.repo" },
+    # Ghostty's COPR. No key asset: COPR cites its key by URL with
+    # repo_gpgcheck=0, its own shape, with no metadata-signing race to lose.
+    # Named as `dnf5 copr enable` would name it, so enabling it by hand and
+    # declaring it here agree rather than leaving two files for one repo id.
+    { repo = "assets/rpm-repos/_copr:copr.fedorainfracloud.org:scottames:ghostty.repo" },
+]
 
 [[assert]]
 absent  = "/etc/yum.repos.d/_copr_scottames-ghostty.repo"
