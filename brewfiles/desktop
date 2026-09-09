@@ -26,6 +26,13 @@ brew "zsh"
 brew "zsh-autosuggestions"
 brew "zsh-completions"
 brew "zsh-syntax-highlighting"
+# The remaining three plugins assets/zshrc.template sources. Not optional: it
+# sources them unguarded, and the Up/Down bindings near the end of that file are
+# zsh-history-substring-search's widgets — without the plugin, `bindkey` fails
+# and the arrow keys lose history search.
+brew "zsh-autopair"
+brew "zsh-history-substring-search"
+brew "zsh-you-should-use"
 brew "starship"
 
 # ── What the managed ~/.zshrc.image actually calls ───────────────────────────
@@ -56,6 +63,25 @@ cask "font-cascadia-code"
 cask "font-cascadia-code-nf"
 cask "font-inter"
 cask "font-jetbrains-mono"
+cask "font-roboto"
+cask "font-roboto-mono"
 # Absent from the stock base, and read by Brave and by anything falling back to a
 # default serif or sans.
 cask "font-dejavu"
+
+# ── Applications ─────────────────────────────────────────────────────────────
+# Flatpaks, because each of these is sandboxable and none needs to reach into
+# the session the way a browser does. That is the whole test: an app that needs
+# a native-messaging manifest or an /etc allowlist entry has to be native (see
+# apps/rpm-layered.toml), and everything else is better off in a sandbox with
+# its own update stream.
+#
+# Flathub delivers these, and Bazzite's uupd.timer updates them daily — so
+# nothing here needs a timer, and temper's job is only to say they should exist.
+#
+# These are the ones this spec's owners actually run. They are a starting point,
+# not a recommendation: drop the lines you do not want, add your own, and
+# `temper reconcile` will absorb anything you install by hand.
+flatpak "com.nextcloud.desktopclient.nextcloud"
+flatpak "org.libreoffice.LibreOffice"
+flatpak "com.discordapp.Discord"

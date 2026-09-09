@@ -35,12 +35,16 @@ fi
 eval "$(starship init zsh)"
 
 # ─── Plugins ──────────────────────────────────────────────────────────────────
-# zsh-autosuggestions and zsh-syntax-highlighting ship as Fedora RPMs at
-# /usr/share/ in the bazzite-custom image; the rest are brew-only, since no F44
-# packaging exists. Try the image path first and fall back to brew, so this also
-# works on stock Bazzite and on other distros. On macOS /usr/share/zsh-* does not
-# exist, so both loops fall straight through to the brew prefix — which is why
-# one template serves both platforms.
+# Some distributions package zsh-autosuggestions and zsh-syntax-highlighting
+# under /usr/share. Fedora 44 does not, so on Bazzite both arrive from Homebrew
+# like everything else — but the loops try the system path first and fall back to
+# the brew prefix, which costs nothing and lets this file serve a distro that
+# does package them.
+#
+# The three sourced after them are unguarded on purpose. All three are declared
+# in the Brewfile, and the history-substring bindings near the end of this file
+# are one of their widgets — so a missing file should be a loud error at startup
+# rather than a shell that silently loses its arrow-key history search.
 for f in /usr/share/zsh-autosuggestions/zsh-autosuggestions.zsh {{ brew_prefix }}/share/zsh-autosuggestions/zsh-autosuggestions.zsh; do
     [[ -r "$f" ]] && source "$f" && break
 done

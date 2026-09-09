@@ -1,0 +1,54 @@
+# Login-time user units that clear stale single-instance locks.
+#
+# Brave Origin, Vivaldi and the Nextcloud client each use a lock file to enforce
+# one running instance, and each leaves it behind when the session ends
+# uncleanly — a crash, a forced reboot, an OOM kill. The app then refuses to
+# start, with a message that does not say why, and the fix is to delete a file in
+# a path nobody remembers. Clearing the locks at login costs nothing and turns a
+# confusing failure into one that cannot happen.
+#
+# Deleting the lock is only safe because it runs at LOGIN, before any of these
+# apps has started: there is no instance whose lock could be stolen. A timer, or
+# a removal at converge time, would not have that guarantee.
+#
+# This is the bundle most worth having if you are coming from an image that
+# baked these units in as system presets. A preset applies once, at a user's
+# first boot, so it cannot help a machine that already exists — which is why
+# enabling is a converge step here rather than something the unit files carry.
+os   = "linux"
+role = "desktop"
+
+# Each unit is gated on its app actually being present rather than on the
+# machine's role: the units are per-app, and a desktop that does not run
+# Nextcloud has no lock to clear. assets/scripts/user-units-enable.sh reads the
+# same fact off the filesystem, so a skipped copy skips its enable too.
+
+[[step]]
+copy = "assets/systemd/brave-origin-unlock.service"
+to   = "~/.config/systemd/user/brave-origin-unlock.service"
+when = { binary = "brave-origin" }
+
+# Gated on the package rather than a binary because vivaldi-stable installs
+# several launcher names and the useful one to test is the thing this spec
+# actually declares — see apps/vivaldi.toml.
+[[step]]
+copy = "assets/systemd/vivaldi-unlock.service"
+to   = "~/.config/systemd/user/vivaldi-unlock.service"
+when = { rpm = "vivaldi-stable" }
+
+# The Nextcloud client is a flatpak here, so its lock lives under ~/.var/app/
+# rather than ~/.config — the unit's path is flatpak-specific and would be wrong
+# for a native install.
+[[step]]
+copy = "assets/systemd/nextcloud-unlock.service"
+to   = "~/.config/systemd/user/nextcloud-unlock.service"
+when = { flatpak = "com.nextcloud.desktopclient.nextcloud" }
+
+# `copy` can place a unit but not enable it: the [Install] section only takes
+# effect once systemd links it into default.target.wants. The check reports
+# whether every deployed unit is already enabled, so this step goes silent once
+# a machine is converged instead of counting as changed on every run.
+[[step]]
+exec  = "assets/scripts/user-units-enable.sh"
+check = "assets/scripts/user-units-enable-check.sh"
+run   = "always"

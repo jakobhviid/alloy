@@ -1,0 +1,20 @@
+# Proton Mail's desktop app.
+#
+# Composed only by machines that want it — see the note on `apps` in temper.toml.
+#
+# Proton publishes no yum repo for Mail: the only official Linux path is a direct
+# .rpm download from proton.me, and the in-app updater checks Proton's own
+# version feed regardless. A cask unpacks that same vendor .rpm and installs its
+# payload, so the app is delivered over HTTPS from the vendor and kept current on
+# brew's cadence, with no third-party repo added to the OS update path. Layering
+# it would put a hand-fetched RPM into every `rpm-ostree upgrade` resolution for
+# no gain.
+#
+# `brew_trust` is a real decision, not boilerplate: trusting a tap means trusting
+# it to run install code on your machine. This one is the same tap temper itself
+# comes from, so a machine that installed temper via brew has already made that
+# call — but make it deliberately rather than by inheritance.
+os         = "linux"
+role       = "desktop"
+brew_trust = ["jakobhviid/tap"]
+packages   = ['cask "jakobhviid/tap/proton-mail-linux"']

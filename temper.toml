@@ -44,7 +44,7 @@ role = "desktop"        # "desktop" means this box has a graphical session.
 # current here, and is composed only by machines whose owner actually wants it —
 # it is not part of anyone's default. Drop the name and no Vivaldi repo, key or
 # package ever touches the machine.
-apps = ["rpm-layered", "shell", "zsh", "ghostty", "gnome"]
+apps = ["rpm-layered", "shell", "zsh", "ghostty", "gnome", "session-units"]
 
 # Bundles this spec maintains but does NOT compose by default, because each one
 # makes a decision you should make yourself. Add the name to take it:
@@ -58,5 +58,12 @@ apps = ["rpm-layered", "shell", "zsh", "ghostty", "gnome"]
 #                  for Brave Origin: the /etc allowlist entry and the
 #                  native-messaging manifest. Trusts ublue-os/tap. Take it
 #                  together with "brave-linux" if you use 1Password with Brave.
+#   "proton-mail"  Proton Mail's desktop app, from a vendor .rpm repackaged as
+#                  a cask. Trusts jakobhviid/tap — the same tap temper comes
+#                  from.
+#   "fonts-msdocs" The Microsoft document fonts, for opening .docx and .xlsx
+#                  written by someone else without the layout moving. Trusts
+#                  colindean/fonts-nonfree; they are EULA-restricted, which is
+#                  why taking them is your call and not a Brewfile line.
 
 brewfile = "brewfiles/desktop"

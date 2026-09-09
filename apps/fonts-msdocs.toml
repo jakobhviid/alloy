@@ -1,0 +1,26 @@
+# The Microsoft document fonts, for exchanging files with people who use them.
+#
+# Composed only by machines that want them — see the note on `apps` in
+# temper.toml. Worth taking if you open .docx or .xlsx written by someone else:
+# without these, a document laid out in Calibri or Times New Roman is
+# re-flowed in a substitute face and the pagination moves.
+#
+# These are EULA-restricted redistributions, which is why they are not in
+# Homebrew core and why this needs a tap you have to trust explicitly. They are
+# also the reason this is a separate bundle rather than a line in the Brewfile:
+# taking someone else's font licensing decision by default is not this spec's
+# call to make.
+#
+# Casks rather than layered packages for the same reason as every other font
+# here — ~/.local/share/fonts is writable on an atomic system, fontconfig reads
+# it with no configuration, and it is where Brave looks.
+os         = "linux"
+role       = "desktop"
+brew_trust = ["colindean/fonts-nonfree"]
+packages   = [
+    'cask "font-microsoft-office"',
+    'cask "font-arial"',
+    'cask "font-times-new-roman"',
+    'cask "font-courier-new"',
+    'cask "font-georgia"',
+]

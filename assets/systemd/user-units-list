@@ -1,0 +1,10 @@
+# User units this spec deploys into ~/.config/systemd/user/ and keeps enabled.
+# Read by BOTH assets/scripts/user-units-enable.sh (which enables them) and
+# user-units-enable-check.sh (which reports whether they already are), so adding
+# a unit is a one-line change in one place.
+#
+# Only units named here are touched. Enumerating the directory instead would
+# enable anything you had dropped in by hand, which is your business.
+brave-origin-unlock.service
+vivaldi-unlock.service
+nextcloud-unlock.service

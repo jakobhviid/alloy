@@ -73,6 +73,16 @@ new schema.
 A machine already running **stock Bazzite** — `bazzite-gnome` or
 `bazzite-gnome-nvidia-open`. Nothing here builds or requires a custom image.
 
+**Coming from a base that is not stock** — your own build, someone else's custom
+image, anything that bakes applications into `/usr`? See **`MIGRATE.md`**, which
+is the ordered path from there to here. One detail from it is worth knowing even
+if you read nothing else: rebase with `rpm-ostree rebase
+ostree-image-signed:registry:…` and confirm the staged deployment line begins
+with `ostree-image-signed:` before rebooting. A bare `bootc switch` produces an
+`ostree-unverified-registry:` deployment instead, which silently gives up
+signature verification on every future upgrade, and correcting it after the boot
+means rebasing a second time.
+
 ## Getting started
 
 Homebrew ships with Bazzite, so the shortest path installs temper through it. The
@@ -110,15 +120,22 @@ Two edits, both in `temper.toml`:
    machine names it. Removing a name is how you decline software; adding one is
    how you take it.
 
-Three bundles are shipped but **not composed by default**, because each makes a
+Five bundles are shipped but **not composed by default**, because each makes a
 decision that should be yours. `vivaldi` installs the Vivaldi browser from
 Vivaldi's own repo. `brave-linux` applies Brave's managed policy — which
 force-installs the 1Password extension, disables Brave's own password manager,
 and pins DNS and search — and makes Brave the default handler for web content;
 read `apps/brave-linux.toml` before taking it. `1password` installs 1Password
 and adds the two things its own installer leaves out for Brave Origin, so take
-it alongside `brave-linux` if you use 1Password. Leave a name out of `apps` and
-nothing it declares ever touches your machine.
+it alongside `brave-linux` if you use 1Password. `proton-mail` installs Proton
+Mail's desktop app from a vendor `.rpm` repackaged as a cask. `fonts-msdocs`
+installs the Microsoft document fonts, which are EULA-restricted — which is why
+accepting them is your call and not a Brewfile line. Leave a name out of `apps`
+and nothing it declares ever touches your machine.
+
+The three bundles that trust a third-party Homebrew tap say so in their own
+comments. Trusting a tap means trusting it to run install code on your machine,
+so each of those is a separate, deliberate yes.
 
 ## One thing you have to set by hand
 
@@ -150,12 +167,21 @@ from.
 | `zsh` | zsh in two files — one this spec owns, one that stays yours. | yes |
 | `ghostty` | Ghostty's config, and Ctrl+Alt+T for a new window. | yes |
 | `gnome` | Fractional-scaling and compositing fixes, and terminal blur. No extensions — those are left to you. | yes |
+| `session-units` | Login units that clear stale single-instance locks for Brave Origin, Vivaldi and the Nextcloud client. Each is gated on its app being installed. | yes |
 | `vivaldi` | The Vivaldi browser. | opt-in |
 | `brave-linux` | Brave's managed policy. Opinionated; read it first. | opt-in |
+| `1password` | 1Password, plus the allowlist entry and native-messaging manifest its installer leaves out. | opt-in |
+| `proton-mail` | Proton Mail's desktop app, as a cask over a vendor `.rpm`. | opt-in |
+| `fonts-msdocs` | The Microsoft document fonts. EULA-restricted. | opt-in |
 
-It is deliberately a short list. This spec covers what is true of *any* Bazzite
-desktop and stops there — it is not a copy of anyone's personal setup, and the
-bundles carry no dotfiles, keys, hostnames or identities.
+It is deliberately a short list, and the bundles carry no dotfiles, keys,
+hostnames or identities — nothing here is personal to whoever hands you a copy.
+
+The **applications** are the one place that is a matter of taste rather than a
+matter of fact. `brewfiles/desktop` names the handful its owners actually run, so
+that a fresh machine arrives usable rather than empty. Treat those lines as a
+starting point: delete the ones you do not want, add your own, and `temper
+reconcile` will absorb anything you install by hand into your copy of the spec.
 
 Each bundle explains itself: the comments say *why* something comes from where it
 does, which is the part that is hard to reconstruct later. The channel policy
@@ -178,6 +204,24 @@ worth knowing before you debug it the hard way: do **not** add your user to the
 `onepassword` group. It looks like the fix and is the opposite — 1Password
 authorises a connection by checking the peer's egid is `onepassword`, which only
 means something while that egid is unreachable outside setgid exec.
+
+## Why the session-unlock units are here
+
+Brave, Vivaldi and the Nextcloud client each enforce one running instance with a
+lock file, and each leaves it behind when a session ends uncleanly — a crash, a
+forced reboot, an OOM kill. The app then refuses to start and says nothing about
+why, and the fix is deleting a file in a path nobody remembers.
+
+That silence is the enforcement working as specified rather than a bug anyone is
+going to fix: a stale lock is indistinguishable from a running instance, which is
+the entire point of the lock. So there is nothing to wait for upstream, and
+clearing them at login — before any of the apps has started, so no live
+instance's lock can be stolen — is the only place the ambiguity resolves safely.
+
+It is called out because a custom base tends to provide this invisibly, through
+a systemd preset. A preset applies once, at a user's first boot, so it cannot
+help a machine that already exists — which is why enabling these is a converge
+step here rather than something the unit files carry themselves.
 
 ## Updates take care of themselves
 
