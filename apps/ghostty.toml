@@ -11,9 +11,12 @@
 os   = "linux"
 role = "desktop"
 
+# template = true renders `{{ brew_prefix }}` in the config's `command` line,
+# which is how zsh is selected without hardcoding a prefix path.
 [[step]]
-copy = "assets/ghostty.linux.config"
-to   = "~/.config/ghostty/config"
+copy     = "assets/ghostty.linux.config"
+to       = "~/.config/ghostty/config"
+template = true
 
 # Three keys inside one custom-keybinding slot: register the slot in the shared
 # list, then set its name, command and binding.

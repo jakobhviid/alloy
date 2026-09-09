@@ -18,6 +18,19 @@
 # brew prefix is a documented way to end up unable to log in
 # (ublue-os/bazzite#4159) — the prefix is extracted on first boot, so the path
 # can legitimately not exist yet.
+#
+# Ghostty's side of that is handled: apps/ghostty.toml sets its `command` to the
+# absolute brew zsh. PTYXIS, the terminal Bazzite ships, you have to set
+# yourself — its profile is keyed by a uuid generated on your machine, so no
+# spec can name it. In Ptyxis: Preferences -> your profile -> Custom Command,
+# and give it the ABSOLUTE path, which `brew --prefix`/bin/zsh prints.
+#
+# Do not put a bare `zsh` there. It appears to work on any system with
+# /usr/bin/zsh and fails on one without: a terminal execs its custom command
+# directly, with no shell in between to have put the brew prefix on PATH, so the
+# name resolves to nothing and the terminal will not open — with no message
+# saying why. That exact mistake, inherited from an older setup, broke the
+# terminal on the machine this spec was extracted from.
 os = "linux"
 
 [[step]]
