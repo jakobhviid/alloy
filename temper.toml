@@ -44,6 +44,11 @@ apps = ["rpm-layered", "shell", "zsh", "ghostty", "gnome"]
 #   "vivaldi"      the Vivaldi browser, from Vivaldi's own repo.
 #   "brave-linux"  Brave's managed policy — force-installs the 1Password
 #                  extension, disables Brave's own password manager, pins DNS
-#                  and search. Read apps/brave-linux.toml before taking it.
+#                  and search — plus Brave as the default web handler. Read
+#                  apps/brave-linux.toml before taking it.
+#   "1password"    1Password itself, and the glue its own installer leaves out
+#                  for Brave Origin: the /etc allowlist entry and the
+#                  native-messaging manifest. Trusts ublue-os/tap. Take it
+#                  together with "brave-linux" if you use 1Password with Brave.
 
 brewfile = "brewfiles/desktop"

@@ -15,6 +15,12 @@
 # These are one person's good defaults, not a hardening baseline — take them,
 # edit the file, or leave the bundle out of your `apps` list.
 #
+# Because the policy force-installs the 1Password extension, this bundle pairs
+# with `1password` — that one installs the app and does the two things its
+# installer leaves undone for Brave Origin. Taking this bundle without it gives
+# you an extension that cannot reach the desktop app, and Brave's own password
+# manager already switched off.
+#
 # `sysfile` rather than a plain copy because Chromium reads managed policy only
 # from a root-owned path under /etc/<browser>/policies/managed/. Nothing else
 # writes that file, so temper owns it whole and drift compares content, mode and
@@ -25,6 +31,20 @@ os = "linux"
 [[step]]
 sysfile = "assets/brave-origin-policy.json"
 to      = "/etc/brave/policies/managed/brave-policy.json"
+mode    = "0644"
+owner   = "root"
+group   = "root"
+
+# Brave as the system-wide handler for web content.
+#
+# /etc/xdg rather than ~/.config/mimeapps.list, because this is a default and not
+# the last word: the user file takes precedence over /etc/xdg, so whatever you
+# pick in GNOME's own Default Applications settings wins and is not reverted on
+# the next converge — which a copy into the user file would do. Nothing else
+# writes /etc/xdg/mimeapps.list, so temper owns it whole.
+[[step]]
+sysfile = "assets/mimeapps.list"
+to      = "/etc/xdg/mimeapps.list"
 mode    = "0644"
 owner   = "root"
 group   = "root"

@@ -51,12 +51,15 @@ Two edits, both in `temper.toml`:
    machine names it. Removing a name is how you decline software; adding one is
    how you take it.
 
-Two bundles are shipped but **not composed by default**, because each makes a
+Three bundles are shipped but **not composed by default**, because each makes a
 decision that should be yours. `vivaldi` installs the Vivaldi browser from
-Vivaldi's own repo. `brave-linux` applies Brave's managed policy, which
+Vivaldi's own repo. `brave-linux` applies Brave's managed policy — which
 force-installs the 1Password extension, disables Brave's own password manager,
-and pins DNS and search — read `apps/brave-linux.toml` before taking it. Leave a
-name out of `apps` and nothing it declares ever touches your machine.
+and pins DNS and search — and makes Brave the default handler for web content;
+read `apps/brave-linux.toml` before taking it. `1password` installs 1Password
+and adds the two things its own installer leaves out for Brave Origin, so take
+it alongside `brave-linux` if you use 1Password. Leave a name out of `apps` and
+nothing it declares ever touches your machine.
 
 ## One thing you have to set by hand
 
@@ -103,6 +106,19 @@ the app is sandboxable**. Browsers are the clearest case of "cannot work":
 allowlist entry that a sandboxed browser cannot reach — which is why Brave is
 layered and not a flatpak. If you do not use 1Password, a flatpak browser is a
 perfectly good choice and one less repo in your update path.
+
+That integration also does not work the moment the app is installed, which is
+what the `1password` bundle is for. 1Password trusts a fixed list of browser
+basenames, and `brave-origin` is not on it, so it needs adding to
+`/etc/1password/custom_allowed_browsers` — root-owned and mode 0755, because the
+test is "writable only by root" and 0444 fails it on root's own missing write
+bit. And Brave Origin reads native-messaging manifests from its own config
+directory, which 1Password's installer never writes to, so the manifest has to
+be mirrored across from Brave-Browser with its `path` rewritten. One more thing
+worth knowing before you debug it the hard way: do **not** add your user to the
+`onepassword` group. It looks like the fix and is the opposite — 1Password
+authorises a connection by checking the peer's egid is `onepassword`, which only
+means something while that egid is unreachable outside setgid exec.
 
 ## Updates take care of themselves
 
