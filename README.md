@@ -55,6 +55,27 @@ force-installs the 1Password extension, disables Brave's own password manager,
 and pins DNS and search — read `apps/brave-linux.toml` before taking it. Leave a
 name out of `apps` and nothing it declares ever touches your machine.
 
+## One thing you have to set by hand
+
+zsh is installed from Homebrew and is selected **per terminal**, not as your
+login shell — leave that as `/bin/bash`. `chsh` to a path under the brew prefix
+is a documented way to end up unable to log in (ublue-os/bazzite#4159), and the
+prefix is extracted on first boot, so it can be absent exactly when it is
+needed.
+
+Ghostty is handled for you: `apps/ghostty.toml` sets its launch command to the
+absolute brew zsh. **Ptyxis, the terminal Bazzite ships, you have to set
+yourself** — its profile is keyed by a uuid generated on your machine, so no
+shared spec can name it. Preferences → your profile → Custom Command, and give
+it the absolute path that `brew --prefix`/bin/zsh prints.
+
+Do not put a bare `zsh` there. It works on any system that has `/usr/bin/zsh`
+and fails on one that does not: a terminal execs its custom command directly,
+with no shell in between to have put the brew prefix on PATH, so the name
+resolves to nothing and the terminal simply will not open — with no message
+saying why. That exact mistake broke the terminal on the machine this spec came
+from.
+
 ## What it sets up
 
 | Bundle | What it does | Default |
