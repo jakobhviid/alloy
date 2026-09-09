@@ -112,6 +112,11 @@ it means.
 
 Two edits, both in `temper.toml`:
 
+0. **The extension list is yours to grow.** `gnome_extensions` in the machine
+   block declares one — dash-to-dock, because GNOME ships no dock and its
+   absence is the thing people notice. Install others however you like and
+   `temper reconcile` will offer to write them into that list; it edits a
+   machine's own list and never a bundle's, which is why the list lives there.
 1. **The machine name must match your hostname** (`hostname -s`). Without a
    matching `[[machine]]` block temper does not know which machine it is looking
    at and refuses to run. `temper init` will write the block for you and seed it
@@ -166,7 +171,7 @@ from.
 | `shell` | The starship prompt and a tmux config. | yes |
 | `zsh` | zsh in two files — one this spec owns, one that stays yours. | yes |
 | `ghostty` | Ghostty's config, and Ctrl+Alt+T for a new window. | yes |
-| `gnome` | Fractional-scaling and compositing fixes, and terminal blur. No extensions — those are left to you. | yes |
+| `gnome` | Fractional-scaling and compositing fixes, and terminal blur. Declares no extensions itself — those live in your machine block. | yes |
 | `session-units` | Login units that clear stale single-instance locks for Brave Origin, Vivaldi and the Nextcloud client. Each is gated on its app being installed. | yes |
 | `vivaldi` | The Vivaldi browser. | opt-in |
 | `brave-linux` | Brave's managed policy. Opinionated; read it first. | opt-in |

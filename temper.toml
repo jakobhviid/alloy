@@ -66,4 +66,25 @@ apps = ["rpm-layered", "shell", "zsh", "ghostty", "gnome", "session-units"]
 #                  colindean/fonts-nonfree; they are EULA-restricted, which is
 #                  why taking them is your call and not a Brewfile line.
 
+# GNOME extensions, declared here at machine scope rather than in apps/gnome.toml
+# for the reason that bundle gives: a bundle's list is shared by every machine
+# composing it, and `temper reconcile` will not edit one — so an extension you
+# install by hand can be absorbed into this list, but never into a bundle's.
+# That makes this the list to grow.
+#
+# A bare uuid means installed AND enabled; `{ uuid = "…", enabled = false }`
+# means installed and switched off, which is a state worth declaring rather than
+# leaving to drift.
+#
+# dash-to-dock earns the one slot because a missing dock is the change people
+# actually notice, and GNOME ships no dock of its own. It comes from
+# extensions.gnome.org through temper's extension provider — NOT as a layered
+# `gnome-shell-extension-dash-to-dock`, even though Fedora packages one. The
+# provider is the purpose-built channel: it installs and enables in one place,
+# `drift` reports a switched-off extension, and nothing joins the layered set or
+# the rpm-ostree update path for a few hundred KB of JavaScript.
+#
+# Bazzite's own bundled extensions need no line here — see apps/gnome.toml.
+gnome_extensions = ["dash-to-dock@micxgx.gmail.com"]
+
 brewfile = "brewfiles/desktop"
