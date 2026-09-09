@@ -9,6 +9,36 @@ It is meant to be **taken and made yours**. Clone it, edit it, keep it wherever
 you like — a repo of your own, a synced folder, a USB stick. temper does not care
 how the folder got to the machine, and nothing here reports home.
 
+## What this is, and what temper is
+
+Two things, and keeping them apart is the whole idea.
+
+**[temper](https://github.com/jakobhviid/temper) is the tool.** It reads a folder
+of files and makes the machine match them — installing what is missing, writing
+the config, and telling you what has drifted since. It is public, identical for
+everyone, and knows nothing about any particular machine.
+
+**This folder is the data**, and temper calls it a *home*: the description of
+what a machine should be. Which packages, from which channel, which files land
+where, which settings are fixed policy. One tool, many homes — mine is private
+and yours will be too, once you have edited this one enough.
+
+So `temper --llm` is where the tool's contract lives: every verb, the manifest
+schema, which primitive to reach for. Read it there rather than here, because it
+changes faster than this folder does. What lives *here* is the other half — the
+decisions. Every bundle in `apps/` says not just what it installs but **why it
+comes from where it does**, because that is the part that is expensive to work
+out twice: why Brave is layered from an rpm repo while Boxes is a flatpak, why
+zsh comes from Homebrew and is never your login shell, why one file has to be
+root-owned. Those answers are the actual content; the TOML around them is
+bookkeeping.
+
+**It is a worked example, not a template.** Nothing here is filled in with blanks
+for you to complete — it is a spec that converges a real stock Bazzite desktop,
+published so that "how do I write one of these" has an answer you can read end to
+end and run. Change the hostname, drop the bundles you do not want, add your own,
+and it stops being an example and becomes yours.
+
 ## What you need
 
 A machine already running **stock Bazzite** — `bazzite-gnome` or
