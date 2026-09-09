@@ -18,31 +18,34 @@
 os   = "linux"
 role = "desktop"
 
-# Each unit is gated on its app actually being present rather than on the
-# machine's role: the units are per-app, and a desktop that does not run
-# Nextcloud has no lock to clear. assets/scripts/user-units-enable.sh reads the
-# same fact off the filesystem, so a skipped copy skips its enable too.
+# All three deploy unconditionally, with no presence gate, and that is deliberate.
+#
+# Each unit is an `rm -f` of paths that belong to one app, so on a machine
+# without that app it runs and does nothing — the cost of carrying it is a
+# ten-line file. Gating it on the app being installed looks tidier and is worse
+# here, because two of these apps are LAYERED: a layered package lands in a new
+# deployment, so it does not exist on the running system until the next boot. A
+# presence gate therefore skips those two on a machine's first converge and only
+# catches them on a second one after the reboot — which is precisely the window
+# where a new machine is most likely to be force-restarted and strand a lock.
+#
+# The protection is unconditional instead. assets/scripts/user-units-enable.sh
+# enables whatever is deployed, so all three are enabled from the first converge.
 
 [[step]]
 copy = "assets/systemd/brave-origin-unlock.service"
 to   = "~/.config/systemd/user/brave-origin-unlock.service"
-when = { binary = "brave-origin" }
 
-# Gated on the package rather than a binary because vivaldi-stable installs
-# several launcher names and the useful one to test is the thing this spec
-# actually declares — see apps/vivaldi.toml.
 [[step]]
 copy = "assets/systemd/vivaldi-unlock.service"
 to   = "~/.config/systemd/user/vivaldi-unlock.service"
-when = { rpm = "vivaldi-stable" }
 
 # The Nextcloud client is a flatpak here, so its lock lives under ~/.var/app/
-# rather than ~/.config — the unit's path is flatpak-specific and would be wrong
-# for a native install.
+# rather than ~/.config. A native install keeps it elsewhere, so that unit would
+# be a no-op rather than wrong — worth knowing if you swap to the RPM.
 [[step]]
 copy = "assets/systemd/nextcloud-unlock.service"
 to   = "~/.config/systemd/user/nextcloud-unlock.service"
-when = { flatpak = "com.nextcloud.desktopclient.nextcloud" }
 
 # `copy` can place a unit but not enable it: the [Install] section only takes
 # effect once systemd links it into default.target.wants. The check reports
