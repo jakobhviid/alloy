@@ -47,6 +47,11 @@ all, because temper treats an unknown manifest field as a parse error rather tha
 ignoring it. So an old temper fails with a parse error that says nothing about
 repos, which is a confusing way to learn you need `brew upgrade temper`.
 
+That floor says which temper can *read* this folder. It is not something to go
+and install: temper keeps only its ten most recent releases, so 7.4.0 will stop
+being downloadable long before it stops being the right answer. Install the
+current one — `brew upgrade temper` — and the floor takes care of itself.
+
 **temper moves faster than this folder, and that is the expected state.** If you
 are on a newer version and something here no longer parses, or a primitive
 behaves differently from what a comment describes, then `temper --llm` is the
