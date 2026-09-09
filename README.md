@@ -39,6 +39,30 @@ published so that "how do I write one of these" has an answer you can read end t
 end and run. Change the hostname, drop the bundles you do not want, add your own,
 and it stops being an example and becomes yours.
 
+## The temper this was written for
+
+Written and verified against **temper 7.5.1**. The newest thing it uses is
+`rpm_repos`, which arrived in **7.4.0** — below that the folder does not load at
+all, because temper treats an unknown manifest field as a parse error rather than
+ignoring it. So an old temper fails with a parse error that says nothing about
+repos, which is a confusing way to learn you need `brew upgrade temper`.
+
+**temper moves faster than this folder, and that is the expected state.** If you
+are on a newer version and something here no longer parses, or a primitive
+behaves differently from what a comment describes, then `temper --llm` is the
+authority and this folder is out of date — not the other way round. Read it in
+full, and the **MANIFEST SCHEMA** section in particular: that is the
+field-by-field list the parser actually enforces, and it is where a renamed or
+removed field shows up.
+
+That reconciliation is a good job to hand to an LLM, and it is most of why the
+reasoning in these bundles is written out at length. Point it at this folder and
+at the output of `temper --llm`, and ask it to bring the two into agreement.
+Renamed fields, changed defaults and a primitive that has gained an option are
+all mechanical once both halves are visible — and the comments tell it *why* each
+choice was made, so it can preserve the intent rather than just satisfying the
+new schema.
+
 ## What you need
 
 A machine already running **stock Bazzite** — `bazzite-gnome` or

@@ -8,6 +8,12 @@
 # temper will not find a machine block for this box and will refuse to run. Run
 # `hostname -s` and put that here. `temper init` will also write a block for you,
 # seeded from what is already installed.
+#
+# WRITTEN FOR TEMPER 7.5.1; needs 7.4.0 or newer, because `rpm_repos` in
+# apps/rpm-layered.toml and apps/vivaldi.toml arrived there and an unknown
+# manifest field is a parse error, not a warning. If a newer temper rejects
+# something in this folder, temper is right and the folder is stale: read
+# `temper --llm`, MANIFEST SCHEMA first, and reconcile it. See the README.
 
 # A synced folder is not a repo. Every git behaviour is off because the copy you
 # were handed may live in Nextcloud, on a USB stick, or in a git clone — temper
