@@ -199,3 +199,12 @@ are all off by default here because a synced folder is not a repo:
 ```sh
 temper configure set git.auto_commit true
 ```
+
+## License
+
+MIT — see `LICENSE`. Take it, fork it, strip it back, publish your own version;
+the only thing asked is that the copyright notice travels with the parts you
+keep. The configuration this deploys is one person's taste and carries no
+warranty: read a bundle before you compose it, and `temper drift` and
+`temper install --dry-run` both tell you what would happen without doing it.
+
