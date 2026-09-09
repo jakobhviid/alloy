@@ -8,6 +8,28 @@
 # Vivaldi has to be a native package rather than a flatpak if 1Password's browser
 # integration matters to you: that integration needs a native-messaging manifest
 # and an /etc allowlist entry, and a sandboxed browser can reach neither.
+#
+# Two things about that integration, because they cost real debugging time and
+# nothing here automates them — alloy neither installs 1Password nor owns
+# /etc/1password:
+#
+#   1Password trusts a fixed list of browser basenames and `vivaldi-bin` is not
+#   on it, so the extension sits there connecting to nothing until you add
+#   `vivaldi-bin` on its own line to /etc/1password/custom_allowed_browsers.
+#   1Password's own package installs that file — append to it, do not replace
+#   it. It must be owned root:root with mode 0755: 1Password's test is "writable
+#   only by root", so 0444 FAILS, because root itself lacks the write bit there.
+#   Vivaldi needs nothing beyond the entry, being Chromium-based — it reads the
+#   manifest 1Password already installs. A Firefox fork would additionally need
+#   a manifest of its own shape, with allowed_extensions in place of
+#   allowed_origins.
+#
+#   Your user must NOT be a member of the `onepassword` group, and adding it
+#   there to "fix" a connection problem makes it permanent. 1Password accepts an
+#   IPC connection only when the peer's egid is `onepassword`, which is supposed
+#   to be reachable solely by setgid exec; if you are in the group, any process
+#   you run can claim that egid, the check means nothing, and 1Password refuses
+#   with PipeAuthError(NoCreds).
 os   = "linux"
 role = "desktop"
 
